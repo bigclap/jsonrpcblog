@@ -1,40 +1,75 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+**Разработать тестовый json rpc сервер для управление личным блогом**
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+**Стек технологий**
 
-## About Laravel
+PHP 5.6
+Фреймворк, например, laravel 5.2
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Основные методы**
+1) Auth ( авторизация)
+Параметры 
+email 
+password 
+ Ответ:  token 
+Далее, при любом взаимодействии с сервером, будем использовать его, как идентификатор пользователя.
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb combination of simplicity, elegance, and innovation give you tools you need to build any application with which you are tasked.
+2) ListPosts ( получить список постов пользователя)
+Параметры 
+token 
+On_page ( сколько постов на страницу)
+Order_by (id , title, created_at)
+Order_direction ( asc \ desc ) 
+Post_type ( post \ draft) черновик или уже опубликованный пост
 
-## Learning Laravel
+Ответ : json с записями
 
-Laravel has the most extensive and thorough documentation and video tutorial library of any modern web application framework. The [Laravel documentation](https://laravel.com/docs) is thorough, complete, and makes it a breeze to get started learning the framework.
+3) AddPost ( добавить пост )
+Token
+Title
+Created_at ( автоматом текущее время или переданное через api )
+Content
+Post_type
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 900 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+4) EditPost ( редактировать пост)
+Token
+Title
+Created_at ( автоматом текущее время или переданное через api )
+Content
+Post_type
 
-## Contributing
+Автоматом обновляем updated_at
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+5) deletePost ( удаляем пост )
+Token
+post_id
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+Используем так называемый soft delete.
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+Желаемая таблица для хранения данных:
+
+
+CREATE TABLE `Items` (
+  `item_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+ `is_development_mode` tinyint(1) NOT NULL,  
+  `class` varchar(255) NOT NULL,
+  `order_id` int(10) NOT NULL DEFAULT '0',
+  `props_json` mediumtext,
+  `created_ts` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `updated_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_ts` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`item_id`,`is_development_mode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='2';
+
+
+Коммент
+Is_development_mode =1 - если опубликовано
+Is_development_mode = 0 - если черновик
+
+Содержимое поста subject \ content храним в json в поле props_json
+
+
+Результат залить как репозиторий на bitbucket.org или github
