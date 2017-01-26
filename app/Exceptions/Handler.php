@@ -56,10 +56,10 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        if ($request->expectsJson()) {
+//        if ($request->expectsJson() || $request->ajax() || $re) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
-        }
+//        }
 
-        return redirect()->guest('login');
+//        return redirect()->guest('login');
     }
 }
